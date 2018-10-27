@@ -53,7 +53,7 @@ class Success(APIException):
 
 
 class DeleteSuccess(Success):
-    code = 202
+    code = 202                      # 204表示No Content 在返回中没有任何内容
     msg = 'delete success'
     error_code = -1
 

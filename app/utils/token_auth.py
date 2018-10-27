@@ -4,10 +4,11 @@ from flask_httpauth import HTTPBasicAuth      # 把账号和密码放到HTTP头�
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 from app.utils.error import AuthFailed, Forbidden
 from app.utils.scope import is_in_scope
+# 验证token
 
 
 auth = HTTPBasicAuth()
-User = namedtuple('User', ['uid', 'ac_type', 'scope'])
+user_tuple = namedtuple('user_tuple', ['uid', 'ac_type', 'is_admin'])
 
 
 @auth.verify_password
@@ -23,7 +24,7 @@ def verify_password(token, password):
         return False
     else:
         # request
-        g.user = user_info
+        g.user = user_info          # save user
         return True
 
 
@@ -31,7 +32,7 @@ def verify_auth_token(token):
     """
     验证token的合法性
     :param token:
-    :return:
+    :return: 返回一个namedtuple(名为user_tuple，包含三项: 'uid', 'ac_type', 'is_admin')
     """
     s = Serializer(current_app.config['SECRET_KEY'])
     # 尝试解析token 出错说明不是真正的token
@@ -45,9 +46,9 @@ def verify_auth_token(token):
                          error_code=1003)
     uid = data['uid']
     ac_type = data['type']
-    scope = data['scope']
+    is_admin = data['is_admin']
     # request 视图函数
     # allow = is_in_scope(scope, request.endpoint)
     # if not allow:
     #     raise Forbidden()
-    return User(uid, ac_type, scope)
+    return user_tuple(uid, ac_type, is_admin)

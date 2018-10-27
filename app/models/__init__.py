@@ -8,8 +8,12 @@ from sqlalchemy import inspect, Column, Integer, SmallInteger, orm
 from contextlib import contextmanager
 
 
-# 重写SQLAlchemy
 class SQLAlchemy(_SQLAlchemy):
+    """
+        重写SQLAlchemy
+        主要新增:
+            auto_commit: 增加自动commit和出错自动回滚机制
+    """
     @contextmanager
     def auto_commit(self):
         try:
@@ -20,11 +24,21 @@ class SQLAlchemy(_SQLAlchemy):
             raise e
 
 
-# 重写查询
 class Query(BaseQuery):
-    def filter_by(self, **kwargs):
+    """
+        重写flask_sqlalchemy封装的查询
+        主要新增:
+            filter_by方法:
+                实现在未删除的元素中查找元素(在查找的参数中增加一个status)
+                使用方法: xxx.query.filter_by(xxx=xxx).first_or_404()       # status为1且xxx=xxx的元素才能被找到
+            get_or_404方法:
+                实现根据id返回元素 存在就返回该元素 不存在就返回NotFound对象
+            first_or_404方法:
+                实现返回Query元素的第一个值，为None就返回NotFound对象
+    """
+    def filter_by(self, **kwargs):                          # 在未删除的元素中寻找
         if 'status' not in kwargs.keys():
-            kwargs['status'] = 1
+            kwargs['status'] = 1                            # 确保status为0的不被找出来
         return super(Query, self).filter_by(**kwargs)
 
     # 有就返回 没有就返回error中的NotFound
@@ -48,15 +62,27 @@ db = SQLAlchemy(query_class=Query)
 
 # 数据模型基类
 class Base(db.Model):
+    """
+        重写db.Model
+        新增:
+            create_time属性: 创建时间()
+            status属性: 实现假删除(默认为1, 1表示可用，0表示删除)
+            __init__方法: 初始化create_time，格式为时间戳(integer)
+            __getitem__方法: 获取指定键对应的值
+            create_datetime方法:
+            set_attrs方法:
+            delete方法:
+            keys方法:
+            hide方法:
+            append方法:
+    """
     __abstract__ = True
     create_time = Column(Integer)
-    status = Column(SmallInteger, default=1)            # 默认为1表示可用 删除可以采取假删除 -> 把status置为0表示该数据被删除
+    status = Column(SmallInteger, default=1)
 
-    # 初始化创建时间
     def __init__(self):
         self.create_time = int(datetime.now().timestamp())
 
-    # 获取指定键对应的值
     def __getitem__(self, item):
         return getattr(self, item)
 
@@ -89,7 +115,11 @@ class Base(db.Model):
         return self
 
 
-class MixinJSONSerializer:                  # 更好用的一个将对象转换成字典的方法
+class MixinJSONSerializer:
+    """
+        更好用的一个将对象转换成字典的方法
+        也就是一个更方便的序列化器
+    """
     @orm.reconstructor
     def init_on_load(self):
         self._fields = []

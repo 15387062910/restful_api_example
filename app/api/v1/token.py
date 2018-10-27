@@ -9,29 +9,34 @@ from app.utils.enums import ClientTypeEnum
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, jsonify
 
-token = Redprint("token")
+api = Redprint("token")
 
 
-def generate_auth_token(uid, ac_type, scope=None, expiration=7200):
+def generate_auth_token(uid, ac_type, is_admin=None, expiration=7200):
     """
     生成token
-    :param uid: 用户id
-    :param ac_type: 登陆设备
-    :param scope:
-    :param expiration: 过期时间
+    :param uid: user id
+    :param ac_type: type of login equipment
+    :param is_admin: scope
+    :param expiration: expiry time
     :return:
     """
     s = Serializer(current_app.config["SECRET_KEY"], expires_in=expiration)
     res = s.dumps({
         'uid': uid,
         'type': ac_type.value,
-        'scope': scope
+        'is_admin': is_admin
     })
     return res
 
 
-@token.route('', methods=["POST"])
+@api.route('', methods=["POST"])
 def get_token():
+    """
+    a interface to get a token
+    验证ClientForm来生成token
+    :return:
+    """
     form = ClientForm().validate_for_api()
     promise = {
         ClientTypeEnum.USER_EMAIL: User.verify,
@@ -41,13 +46,13 @@ def get_token():
         form.secret.data
     )
 
-    # 生成token
+    # generate a token
     expiration = current_app.config["TOKEN_EXPIRATION"]
-    user_token = generate_auth_token(identity["uid"], form.type.data, None, expiration)
+    user_token = generate_auth_token(identity["uid"], form.type.data, identity['is_admin'], expiration)
     t = {
         'token': user_token.decode('ascii')
     }
-    # 返回token
+
     return jsonify(t), 201
 
 

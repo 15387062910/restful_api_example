@@ -1,16 +1,17 @@
 # encoding: utf-8
 # __author__ = "wyb"
 # date: 2018/10/20
+# login and register
 from app.utils.redprint import Redprint
 from app.utils.enums import ClientTypeEnum
 from app.validators.forms import ClientForm, UserEmailForm
 from app.utils.error import Success
 from app.models.user import User
 
-client = Redprint("client")
+api = Redprint("client")
 
 
-@client.route('/register', methods=["POST"])
+@api.route('/register', methods=["POST"])
 def create_client():
     # 表单 json 提交数据:  表单 -> 网页  json -> 小程序 移动端
     form = ClientForm().validate_for_api()

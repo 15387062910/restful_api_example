@@ -2,11 +2,10 @@
 # __author__ = "wyb"
 # date: 2018/10/20
 from flask import Blueprint
-from app.utils.redprint import Redprint
-from .user import user
-from .item import item
-from .client import client
-from .token import token
+from .user import api as user
+from .item import api as item
+from .client import api as client
+from .token import api as token
 
 
 # 将api_v1下的红图注册到bp_v1蓝图上
