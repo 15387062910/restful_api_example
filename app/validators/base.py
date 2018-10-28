@@ -8,8 +8,12 @@ from flask import request
 
 class BaseForm(Form):
     def __init__(self):
-        data = request.json
-        super(BaseForm, self).__init__(data=data)
+        """
+        获取body数据和查询参数并保存
+        """
+        data = request.get_json(silent=True)
+        args = request.args.to_dict()
+        super(BaseForm, self).__init__(data=data, **args)
 
     def validate_for_api(self):
         validate = super(BaseForm, self).validate()

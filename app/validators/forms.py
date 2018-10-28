@@ -9,6 +9,7 @@ from app.models.user import User
 from app.validators.base import BaseForm as Form
 
 
+# 用户登陆基本验证
 class ClientForm(Form):
     account = StringField(validators=[DataRequired(message="不允许为空"), length(min=5, max=32)])        # email
     secret = StringField(validators=[DataRequired(message="不允许为空")])                                # 密码
@@ -22,6 +23,7 @@ class ClientForm(Form):
         self.type.data = client
 
 
+# 用户登陆 - 邮箱登陆方式验证
 class UserEmailForm(ClientForm):
     account = StringField(validators=[Email(message='invalidate email')])
     secret = StringField(
@@ -36,3 +38,13 @@ class UserEmailForm(ClientForm):
     def validate_account(self, value):
         if User.query.filter_by(email=value.data).first():
             raise ValidationError(message="账号已存在")
+
+
+# 图书查询验证
+class BookSearchForm(Form):
+    q = StringField(validators=[DataRequired()])
+
+
+# token验证
+class TokenForm(Form):
+    token = StringField(validators=[DataRequired()])

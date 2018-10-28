@@ -1,6 +1,17 @@
 from flask import request, json
 from werkzeug.exceptions import HTTPException
-# 自定义异常基类
+"""
+app/utils/error.py
+======================
+
+自定义异常
+    定义自定义异常基类APIException与一系列自定义异常类
+    
+下面是自定义的一系列异常:
+ 400 -> 请求参数错误  401 -> 未授权  403 -> 禁止访问  404 -> 没有找到资源或页面
+ 500 -> 服务器产生位置错误
+ 200 -> 查询成功  201 -> 创建或更新成功  204 -> 删除成功
+"""
 
 
 class APIException(HTTPException):
@@ -41,11 +52,7 @@ class APIException(HTTPException):
         return main_path[0]
 
 
-# 下面是自定义异常
-# 400 -> 请求参数错误 401 -> 未授权 403 -> 禁止访问 404 -> 没有找到资源或页面
-# 500 -> 服务器产生位置错误
-# 200 -> 查询成功 201 -> 创建或更新成功 204 -> 删除成功
-# 301 302
+# 自定义异常类:
 class Success(APIException):
     code = 201
     msg = 'Ok - success'

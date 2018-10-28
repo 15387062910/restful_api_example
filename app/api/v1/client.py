@@ -1,7 +1,13 @@
 # encoding: utf-8
 # __author__ = "wyb"
 # date: 2018/10/20
-# login and register
+"""
+app/api/v1/client.py
+=============
+client的API:
+        /api/v1/client/register POST                  登陆接口
+
+"""
 from app.utils.redprint import Redprint
 from app.utils.enums import ClientTypeEnum
 from app.validators.forms import ClientForm, UserEmailForm

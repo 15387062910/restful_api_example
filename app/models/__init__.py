@@ -11,7 +11,6 @@ from contextlib import contextmanager
 class SQLAlchemy(_SQLAlchemy):
     """
         重写SQLAlchemy
-        主要新增:
             auto_commit: 增加自动commit和出错自动回滚机制
     """
     @contextmanager
@@ -27,7 +26,6 @@ class SQLAlchemy(_SQLAlchemy):
 class Query(BaseQuery):
     """
         重写flask_sqlalchemy封装的查询
-        主要新增:
             filter_by方法:
                 实现在未删除的元素中查找元素(在查找的参数中增加一个status)
                 使用方法: xxx.query.filter_by(xxx=xxx).first_or_404()       # status为1且xxx=xxx的元素才能被找到
@@ -64,17 +62,16 @@ db = SQLAlchemy(query_class=Query)
 class Base(db.Model):
     """
         重写db.Model
-        新增:
             create_time属性: 创建时间()
             status属性: 实现假删除(默认为1, 1表示可用，0表示删除)
             __init__方法: 初始化create_time，格式为时间戳(integer)
             __getitem__方法: 获取指定键对应的值
-            create_datetime方法:
-            set_attrs方法:
-            delete方法:
-            keys方法:
-            hide方法:
-            append方法:
+            create_datetime方法: 返回当前对象的创建时间 有就返回没有就返回None
+            set_attrs方法: 设置当前对象某些属性的值(id不能设置)
+            delete方法: 实现假删除
+            keys方法: 获取self.fields中保存的字段
+            hide方法: 除掉self.fields中保存的某个字段(隐藏某个字段)
+            append方法: 向self.fields中添加某个字段
     """
     __abstract__ = True
     create_time = Column(Integer)

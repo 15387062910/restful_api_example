@@ -1,7 +1,7 @@
 # encoding: utf-8
 # __author__ = "wyb"
 # date: 2018/10/22
-from sqlalchemy import Column, Integer, String, SmallInteger
+from sqlalchemy import Column, Integer, String, SmallInteger, orm
 from werkzeug.security import generate_password_hash, check_password_hash                # 加密密码以及检测hash过的密码
 from . import Base, db
 from app.utils.error import NotFound, AuthFailed
@@ -14,9 +14,11 @@ class User(Base):
     auth = Column(SmallInteger, default=1)
     _password = Column('password', String(100))
 
-    # 指定序列化时的键
-    def keys(self):
-        return ["id", "email", "nickname", "auth"]
+    @orm.reconstructor                              # ORM通过元类来创建模型对象 所以要在构造函数前添加这个装饰器
+    def __init__(self):
+        super(User, self).__init__()
+        # self.fields定义默认输出字段
+        self.fields = ["id", "email", "nickname", "auth"]
 
     @property
     def password(self):
@@ -40,8 +42,8 @@ class User(Base):
         user = User.query.filter_by(email=email).first_or_404()
         if not user.check_password(password):
             raise AuthFailed()
-        is_admin = True if user.auth == 666 else False
-        return {'uid': user.id, 'is_admin': is_admin}
+        scope = 'AdminScope' if user.auth == 666 else 'UserScope'
+        return {'uid': user.id, 'scope': scope}
 
     def check_password(self, raw):
         if not self._password:
