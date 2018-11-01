@@ -2,5 +2,6 @@
 /venv/
 /.idea/
 /app/settings.py
-/__pycache__/
 .gitattributes
+
+
