@@ -4,8 +4,7 @@
 """
 app/api/v1/user.py
 =============
-user的CRUD
-    API:
+user的API:
         /api/v1/user/ GET                   用户获取自己的信息
         /api/v1/user/<int:uid> GET          管理员获取任意用户的信息
         /api/v1/user/ DELETE                用户删除自己
@@ -18,24 +17,12 @@ user的CRUD
 """
 from app.utils.redprint import Redprint
 from app.models.user import User
-from app.utils.error import DeleteSuccess, AuthFailed
+from app.utils.error import DeleteSuccess
 from app.utils.token_auth import auth
 from flask import jsonify, g
 from app.models import db
 
 api = Redprint("user")
-
-
-@api.route('/<int:uid>', methods=['GET'])
-@auth.login_required
-def super_get_user(uid):
-    """
-    根据id号获取用户信息(密码不能获取) -> 管理员才能调用
-    :param uid: user id
-    :return:
-    """
-    user = User.query.filter_by(id=uid).first_or_404()
-    return jsonify(user)
 
 
 @api.route('/', methods=['GET'])
@@ -46,6 +33,18 @@ def get_user():
     :return:
     """
     uid = g.user.uid                                        # flask中的g变量是线程隔离的
+    user = User.query.filter_by(id=uid).first_or_404()
+    return jsonify(user)
+
+
+@api.route('/<int:uid>', methods=['GET'])
+@auth.login_required
+def super_get_user(uid):
+    """
+    根据id号获取用户信息(密码不能获取) -> 管理员才能调用
+    :param uid: user id
+    :return:
+    """
     user = User.query.filter_by(id=uid).first_or_404()
     return jsonify(user)
 
@@ -87,11 +86,4 @@ def update_user():
     """
 
     return 'update wyb'
-
-
-# @api.route('', methods=['POST'])                           # 创建用户 -> client.py中创建
-# def create_user():
-#     # 用token进行验证
-#
-#     return 'create user wyb'
 

@@ -12,6 +12,11 @@ class SQLAlchemy(_SQLAlchemy):
     """
         重写SQLAlchemy
             auto_commit: 增加自动commit和出错自动回滚机制
+            使用实例:
+                with db.auto_commit():
+                    user = User.query.filter_by(id=uid).first_or_404()
+                    user.delete()                                        
+
     """
     @contextmanager
     def auto_commit(self):
