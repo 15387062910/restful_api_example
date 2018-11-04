@@ -4,7 +4,7 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, orm
 from werkzeug.security import generate_password_hash, check_password_hash                # 加密密码以及检测hash过的密码
 from . import Base, db
-from app.utils.error import NotFound, AuthFailed
+from app.utils.error import AuthFailed
 
 
 class User(Base):
